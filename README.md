@@ -49,13 +49,13 @@ github-stats stats --org [ORGANIZATION_NAME] --user [YOUR_GITHUB_ID]
 ## Aggregate stats for a specific period
 
 ```shell
-github-stats stats --org freee --user zundamon --from 2025/04/01 --to 2025/06/30
+github-stats stats --org naka-gawa --user naka-gawa --from 2025/04/01 --to 2025/06/30
 ```
 
 ## Run with verbose logging
 
 ```shell
-github-stats stats --org freee --user zundamon -v
+github-stats stats --org naka-gawa --user naka-gawa -v
 ```
 
 ## Authentication
