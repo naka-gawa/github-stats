@@ -38,7 +38,7 @@ var statsCmd = &cobra.Command{
 		toStr, _ := cmd.Flags().GetString("to")
 		token := os.Getenv("GITHUB_TOKEN")
 		if token == "" {
-			logger.Fatal("Error: GITHUB_TOKEN environment variable is not set.")
+			fatalLogger.Fatal("Error: GITHUB_TOKEN environment variable is not set.")
 		}
 
 		// Build date range query strings.
