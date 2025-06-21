@@ -38,7 +38,8 @@ var statsCmd = &cobra.Command{
 		toStr, _ := cmd.Flags().GetString("to")
 		token := os.Getenv("GITHUB_TOKEN")
 		if token == "" {
-			fatalLogger.Fatal("Error: GITHUB_TOKEN environment variable is not set.")
+			fmt.Fprintln(os.Stderr, "Error: GITHUB_TOKEN environment variable is not set.")
+			os.Exit(1)
 		}
 
 		// Build date range query strings.
@@ -51,7 +52,8 @@ var statsCmd = &cobra.Command{
 			if fromStr != "" {
 				fromTime, err := time.Parse(inputDateLayout, fromStr)
 				if err != nil {
-					logger.Fatalf("Invalid --from date format. Please use YYYY/MM/DD. Error: %v", err)
+					fmt.Fprintf(os.Stderr, "Invalid --from date format. Please use YYYY/MM/DD. Error: %v\n", err)
+					os.Exit(1)
 				}
 				fromQuery = fromTime.Format(githubDateLayout)
 			}
@@ -59,7 +61,8 @@ var statsCmd = &cobra.Command{
 			if toStr != "" {
 				toTime, err := time.Parse(inputDateLayout, toStr)
 				if err != nil {
-					logger.Fatalf("Invalid --to date format. Please use YYYY/MM/DD. Error: %v", err)
+					fmt.Fprintf(os.Stderr, "Invalid --to date format. Please use YYYY/MM/DD. Error: %v\n", err)
+					os.Exit(1)
 				}
 				toQuery = toTime.Format(githubDateLayout)
 			}
@@ -71,20 +74,23 @@ var statsCmd = &cobra.Command{
 		// Inject dependencies and run the main business logic.
 		githubGateway, err := gateway.NewGitHubGateway(token, logger)
 		if err != nil {
-			logger.Fatalf("Failed to initialize GitHub gateway: %v", err)
+			fmt.Fprintf(os.Stderr, "Failed to create GitHub gateway: %v\n", err)
+			os.Exit(1)
 		}
 		aggregator := usecase.NewAggregator(githubGateway, logger)
 
 		// Pass the correct date ranges to the aggregator
 		results, err := aggregator.Aggregate(ctx, org, user, commitDateRange, prDateRange)
 		if err != nil {
-			logger.Fatalf("Failed to aggregate stats: %v", err)
+			fmt.Fprintf(os.Stderr, "Failed to aggregate stats: %v\n", err)
+			os.Exit(1)
 		}
 
 		// Marshal the results into a pretty-printed JSON string.
 		jsonData, err := json.MarshalIndent(results, "", "  ")
 		if err != nil {
-			logger.Fatalf("Failed to marshal results to JSON: %v", err)
+			fmt.Fprintf(os.Stderr, "Failed to marshal results to JSON: %v\n", err)
+			os.Exit(1)
 		}
 
 		// Print the final JSON to standard output.
