@@ -26,15 +26,16 @@ func NewAggregator(fetcher gateway.Fetcher, logger *log.Logger) *Aggregator {
 	}
 }
 
-// Aggregate performs the main business logic: it fetches all required data concurrently
-// from the gateway and aggregates it into a final, sorted slice of stats.
-func (a *Aggregator) Aggregate(ctx context.Context, org, user, commitDateRange, prDateRange string) ([]*domain.RepoStats, error) {
+// Aggregate performs the main business logic.
+// It fetches all required data concurrently from the gateway and aggregates it.
+// The `calculateLeadTime` flag controls whether the expensive lead time query is executed.
+func (a *Aggregator) Aggregate(ctx context.Context, org, user, commitDateRange, prDateRange string, calculateLeadTime bool) ([]*domain.RepoStats, error) {
 	a.logger.Println("Usecase: Starting data aggregation...")
 
 	var commitCounts, createdPRCounts, reviewedPRCounts map[string]int
+	var leadTimesByRepo map[string][]gateway.PRLeadTimeData
 
 	// Use an errgroup to fetch all data concurrently.
-	// If any of the fetch operations fail, the whole group will be cancelled.
 	eg, egCtx := errgroup.WithContext(ctx)
 
 	eg.Go(func() error {
@@ -55,6 +56,15 @@ func (a *Aggregator) Aggregate(ctx context.Context, org, user, commitDateRange, 
 		return err
 	})
 
+	// Only fetch lead time data if requested.
+	if calculateLeadTime {
+		eg.Go(func() error {
+			var err error
+			leadTimesByRepo, err = a.fetcher.FetchPRLeadTimes(egCtx, org, user, prDateRange)
+			return err
+		})
+	}
+
 	if err := eg.Wait(); err != nil {
 		return nil, err
 	}
@@ -63,27 +73,40 @@ func (a *Aggregator) Aggregate(ctx context.Context, org, user, commitDateRange, 
 	// Merge all results into a single map.
 	statsMap := make(map[string]*domain.RepoStats)
 
-	for repoName, count := range commitCounts {
+	// Helper function to ensure a map entry exists.
+	ensureRepoStat := func(repoName string) {
 		if _, ok := statsMap[repoName]; !ok {
 			statsMap[repoName] = &domain.RepoStats{Name: repoName}
 		}
+	}
+
+	for repoName, count := range commitCounts {
+		ensureRepoStat(repoName)
 		statsMap[repoName].Commits = count
 	}
 	for repoName, count := range createdPRCounts {
-		if _, ok := statsMap[repoName]; !ok {
-			statsMap[repoName] = &domain.RepoStats{Name: repoName}
-		}
+		ensureRepoStat(repoName)
 		statsMap[repoName].CreatedPRs = count
 	}
 	for repoName, count := range reviewedPRCounts {
-		if _, ok := statsMap[repoName]; !ok {
-			statsMap[repoName] = &domain.RepoStats{Name: repoName}
-		}
+		ensureRepoStat(repoName)
 		statsMap[repoName].ReviewedPRs = count
 	}
 
+	// Calculate and add lead times if the data was fetched.
+	if calculateLeadTime {
+		for repoName, leadTimeDataList := range leadTimesByRepo {
+			ensureRepoStat(repoName)
+			for _, data := range leadTimeDataList {
+				// Calculate the duration from creation to the last review.
+				duration := data.LastReviewedAt.Sub(data.CreatedAt)
+				statsMap[repoName].LeadTimeToLastReviewSeconds = append(statsMap[repoName].LeadTimeToLastReviewSeconds, duration.Seconds())
+			}
+		}
+	}
+
 	// Convert the map to a slice and sort it by repository name for consistent output.
-	sortedStats := make([]*domain.RepoStats, 0)
+	sortedStats := make([]*domain.RepoStats, 0, len(statsMap))
 	for _, repoStat := range statsMap {
 		sortedStats = append(sortedStats, repoStat)
 	}
