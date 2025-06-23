@@ -5,6 +5,7 @@ PLUGIN_DEPENDENCIES := $(shell find . -name "*.go")
 # if you want to execute gotest with verbosity, set this flag to `true`.
 TEST_VERBOSE ?= true
 
+.PHONY: build init format test install
 build: format test $(PLUGIN_BIN)
 
 init:
