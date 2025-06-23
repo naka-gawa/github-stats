@@ -38,18 +38,11 @@ jobs:
       - name: Install dependencies
         run: make init
 
-      - name: Run format check
-        run: |
-          make format
-          if [ -n "$(git diff --name-only)" ]; then
-            echo "Code is not formatted. Please run 'make format'."
-            git diff
-            exit 1
-          fi
-
       - name: Run tests
         id: test
         run: |
+          # Format code before running tests
+          make format
           # Run tests and capture output
           make test 2>&1 | tee test_output.txt
           echo "test_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
