@@ -11,7 +11,7 @@ require (
 	github.com/shurcooL/githubv4 v0.0.0-20240727222349-48295856cce7
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/oauth2 v0.32.0
+	golang.org/x/oauth2 v0.34.0
 	golang.org/x/sync v0.17.0
 )
 
