@@ -6,7 +6,7 @@ require (
 	github.com/gofri/go-github-ratelimit v1.1.1
 	github.com/gofri/go-github-ratelimit/v2 v2.0.2
 	github.com/google/go-github/v62 v62.0.0
-	github.com/google/go-github/v80 v80.0.0
+	github.com/google/go-github/v81 v81.0.0
 	github.com/google/go-github/v81 v81.0.0
 	github.com/montanaflynn/stats v0.7.1
 	github.com/shurcooL/githubv4 v0.0.0-20240727222349-48295856cce7
