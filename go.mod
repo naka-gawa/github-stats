@@ -3,7 +3,7 @@ module github.com/naka-gawa/github-stats
 go 1.24.4
 
 require (
-	github.com/gofri/go-github-ratelimit v1.1.1
+	github.com/gofri/go-github-ratelimit/v2 v2.0.2
 	github.com/gofri/go-github-ratelimit/v2 v2.0.2
 	github.com/google/go-github/v82 v82.0.0
 	github.com/google/go-github/v80 v80.0.0
