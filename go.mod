@@ -1,11 +1,11 @@
 module github.com/naka-gawa/github-stats
 
-go 1.24.4
+go 1.25.0
 
 require (
+	github.com/gofri/go-github-ratelimit v1.1.1
 	github.com/gofri/go-github-ratelimit/v2 v2.0.2
-	github.com/gofri/go-github-ratelimit/v2 v2.0.2
-	github.com/google/go-github/v83 v83.0.0
+	github.com/google/go-github/v62 v62.0.0
 	github.com/google/go-github/v80 v80.0.0
 	github.com/google/go-github/v83 v83.0.0
 	github.com/montanaflynn/stats v0.7.1
@@ -13,7 +13,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/oauth2 v0.35.0
-	golang.org/x/sync v0.19.0
+	golang.org/x/sync v0.20.0
 )
 
 require (
