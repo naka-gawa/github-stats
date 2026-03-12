@@ -1,13 +1,13 @@
 module github.com/naka-gawa/github-stats
 
-go 1.24.4
+go 1.25.0
 
 require (
 	github.com/gofri/go-github-ratelimit v1.1.1
 	github.com/gofri/go-github-ratelimit/v2 v2.0.2
 	github.com/google/go-github/v62 v62.0.0
-	github.com/google/go-github/v80 v80.0.0
 	github.com/google/go-github/v83 v83.0.0
+	github.com/google/go-github/v84 v84.0.0
 	github.com/montanaflynn/stats v0.8.2
 	github.com/shurcooL/githubv4 v0.0.0-20260209031235-2402fdf4a9ed
 	github.com/spf13/cobra v1.10.2
